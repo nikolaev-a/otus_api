@@ -8,21 +8,20 @@ import io.restassured.specification.RequestSpecification;
 import static io.restassured.RestAssured.given;
 
 public class ServiceApi {
-
-    private final String BASE_URL = "https://petstore.swagger.io/v2";
+    private final String BASE_URL = System.getProperty("host", "https://petstore.swagger.io/v2");
     private final String BASE_PATH = "/store/order";
     private final RequestSpecification spec;
 
     public ServiceApi() {
         spec = given()
                 .baseUri(BASE_URL)
+                .basePath(BASE_PATH)
                 .contentType(ContentType.JSON)
                 .log().all();
     }
 
     public ValidatableResponse createStore(StoreDTO store) {
         return given(spec)
-                .basePath(BASE_PATH)
                 .body(store)
                 .when()
                 .post()
@@ -32,27 +31,16 @@ public class ServiceApi {
 
     public ValidatableResponse readStore(String id) {
         return given(spec)
-                .basePath(BASE_PATH + id)
                 .when()
-                .get()
+                .get(String.format("%s", id))
                 .then()
                 .log().all();
     }
 
     public ValidatableResponse deleteStore(String id) {
         return given(spec)
-                .basePath(BASE_PATH + id)
                 .when()
-                .delete()
-                .then()
-                .log().all();
-    }
-
-    public ValidatableResponse inventoryStore() {
-        return given(spec)
-                .basePath("/store/inventory")
-                .when()
-                .get()
+                .delete(String.format("%s", id))
                 .then()
                 .log().all();
     }
